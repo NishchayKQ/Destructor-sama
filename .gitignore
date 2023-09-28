@@ -1,4 +1,4 @@
 bot/devbot.py
-bot/graphMods/dcData.json
-bot/graphMods/level.json
-bot/graphMods/starloglol.json
+bot/graphMods/devdcData.json
+bot/graphMods/devlevel.json
+bot/graphMods/devstarloglol.json
