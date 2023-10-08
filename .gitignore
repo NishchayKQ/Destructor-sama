@@ -2,3 +2,7 @@ bot/devbot.py
 bot/graphMods/devdcData.json
 bot/graphMods/devlevel.json
 bot/graphMods/devstarloglol.json
+*.jpg
+*.png
+*.log
+*.pyc

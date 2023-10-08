@@ -27,6 +27,16 @@ with open("graphMods/starloglol.json") as knyaFile:
 with open("graphMods/level.json") as frenchFile:
     levelData = json.load(frenchFile)
 
+owner = []  # List of owner IDs
+listOfServers = []  # id of servers you want the bot to work in
+channelID = 0  # Channel ID the bot will post if its online!
+token = ''  # add your token
+
+
+convertedGuilds = []
+for ara in listOfServers:
+    convertedGuilds.append(discord.Object(id=ara))
+
 
 def ConvertSectoDay(n):
     n = floor(n)
@@ -231,20 +241,24 @@ tree = discord.app_commands.CommandTree(client)
 @client.event
 async def on_ready():
     print(f'destructor Sama has awoken {client.user}')
-    await tree.sync(guild=discord.Object(id=724927091971194970))
-    await tree.sync(guild=discord.Object(id=1134235922301468712))
-    channelToSend = client.get_channel(1134238470131433474)
-    global disconnectTime
+    for ara in listOfServers:
+        await tree.sync(guild=discord.Object(id=ara))
+    # await tree.sync(guild=discord.Object(id=724927091971194970))
+    # await tree.sync(guild=discord.Object(id=1134235922301468712))
+    if channelID:
+        channelToSend = client.get_channel(channelID)
+    # channelToSend = client.get_channel(1134238470131433474)
+        global disconnectTime
 
-    current_time = time.localtime()
-    if disconnectTime:
-        ConnectTime = time.strftime("%H %M\n", current_time)
-        timeLog = [disconnectTime + ConnectTime]
-        await channelToSend.send(f"{amPamConverter(timeLog,mode = 2)} ready for destruction!")
-        disconnectTime = None
-    else:
-        ConnectTime = time.strftime("%H %M", current_time)
-        await channelToSend.send(f"ready for destruction @{amPamConverter(ConnectTime)}")
+        current_time = time.localtime()
+        if disconnectTime:
+            ConnectTime = time.strftime("%H %M\n", current_time)
+            timeLog = [disconnectTime + ConnectTime]
+            await channelToSend.send(f"{amPamConverter(timeLog,mode = 2)} ready for destruction!")
+            disconnectTime = None
+        else:
+            ConnectTime = time.strftime("%H %M", current_time)
+            await channelToSend.send(f"ready for destruction @{amPamConverter(ConnectTime)}")
 
 
 @client.event
@@ -295,7 +309,7 @@ class Buttons(discord.ui.View):
         await interaction.response.edit_message(content="This is an edited button response!")
 
 
-@tree.command(name="rockpapersizzler", description="what do u mean \"wtf is this command?\"", guilds=[discord.Object(id=724927091971194970), discord.Object(id=1134235922301468712)])
+@tree.command(name="rockpapersizzler", description="what do u mean \"wtf is this command?\"", guilds=convertedGuilds)
 async def rpc(interaction: discord.Interaction):
     badboisEmbed = discord.Embed(
         title=f"{interaction.user.display_name}'s game of rpc", description="insert something")
@@ -305,9 +319,9 @@ async def rpc(interaction: discord.Interaction):
     await interaction.response.send_message(embed=badboisEmbed, view=Buttons())
 
 
-@tree.command(name="say", description="Constructor-Sama Can speak!", guilds=[discord.Object(id=724927091971194970), discord.Object(id=1134235922301468712)])
+@tree.command(name="say", description="Constructor-Sama Can speak!", guilds=convertedGuilds)
 async def sayStuff(interaction: discord.Interaction, what_to_say: str, which_channel: discord.TextChannel = None):
-    if interaction.user.id == 534258961033986049:
+    if interaction.user.id in owner:
         if not which_channel:
             which_channel = interaction.channel
         await which_channel.send(content=what_to_say)
@@ -317,7 +331,7 @@ async def sayStuff(interaction: discord.Interaction, what_to_say: str, which_cha
         await interaction.response.send_message(content="only KepKep can make me say stuff!", ephemeral=True)
 
 
-@tree.command(name="setup_skullboard", description="manage or add skullboard | passing no arguments will disable this feature", guilds=[discord.Object(id=724927091971194970), discord.Object(id=1134235922301468712)])
+@tree.command(name="setup_skullboard", description="manage or add skullboard | passing no arguments will disable this feature", guilds=convertedGuilds)
 @discord.app_commands.checks.has_permissions(administrator=True)
 @discord.app_commands.describe(emojis="can enter multiple, only recognises gold variant for coloured emojis like 👍👍🏽")
 @discord.app_commands.describe(channel="channel where destructor will post in")
@@ -372,7 +386,7 @@ async def skullSet(interaction: discord.Interaction, channel: discord.TextChanne
         await interaction.channel.send(content="emoji not found")
 
 
-@tree.command(name="setup_delas-delete", description="channel where deleted messages go | passing no arguments will disable this feature", guilds=[discord.Object(id=724927091971194970), discord.Object(id=1134235922301468712)])
+@tree.command(name="setup_delas-delete", description="channel where deleted messages go | passing no arguments will disable this feature", guilds=convertedGuilds)
 @discord.app_commands.checks.has_permissions(administrator=True)
 async def delSet(interaction: discord.Interaction, which_channel: discord.TextChannel = None):
     particularServerData = ServerData[str(interaction.guild_id)]
@@ -387,7 +401,7 @@ async def delSet(interaction: discord.Interaction, which_channel: discord.TextCh
     await interaction.response.send_message(content="okie dokie")
 
 
-@tree.command(name="setup_leveling", description="simple leveling feature! |passing no arguments will disable this feature", guilds=[discord.Object(id=724927091971194970), discord.Object(id=1134235922301468712)])
+@tree.command(name="setup_leveling", description="simple leveling feature! |passing no arguments will disable this feature", guilds=convertedGuilds)
 @discord.app_commands.checks.has_permissions(administrator=True)
 @discord.app_commands.describe(which_channel="channel where level updates get annouced!")
 async def LevSet(interaction: discord.Interaction, which_channel: discord.TextChannel):
@@ -420,7 +434,7 @@ async def skullSet_error(interaction, error):
         raise error
 
 
-@tree.command(name="level", description="shows your level. Leave the user argument empty to see your own!", guilds=[discord.Object(id=724927091971194970), discord.Object(id=1134235922301468712)])
+@tree.command(name="level", description="shows your level. Leave the user argument empty to see your own!", guilds=convertedGuilds)
 @discord.app_commands.describe(user="The user who's level you want to see.")
 async def myLevel(interaction: discord.Interaction, user: discord.User = None):
     author = interaction.user
@@ -467,7 +481,7 @@ async def myLevel(interaction: discord.Interaction, user: discord.User = None):
             await interaction.followup.send(file=file)
 
 
-@tree.context_menu(name="bookmark a message", guilds=[discord.Object(id=724927091971194970), discord.Object(id=1134235922301468712)])
+@tree.context_menu(name="bookmark a message", guilds=convertedGuilds)
 async def bookmark(interaction: discord.Interaction, message: discord.Message):
     if message.content:
         await interaction.user.send(message.content)
@@ -489,7 +503,7 @@ async def on_raw_message_delete(message):
         try:
             if message.channel_id == channelToSendID:
                 raise AttributeError("not this channel lmao")
-            if message.cached_message.author.id == 534258961033986049:
+            if message.cached_message.author.id in owner:  # was messging around when i added this...remove it
                 print("kepkep message eh")
             kawaiestEmbed = discord.Embed(
                 description=message.cached_message.content, timestamp=message.cached_message.created_at)
@@ -563,11 +577,11 @@ async def on_message(message):
           await new_channel.send(f"yo! welcome to your new channel!")
   
   """
-    if message.content.startswith('c sleep') and message.author.id in [534258961033986049, 867496941775486992]:
+    if message.content.startswith('c sleep') and message.author.id in owner:
         await message.add_reaction("👍")
         await client.close()
 
-    if message.content.startswith('cre') and message.author.id in [534258961033986049, 867496941775486992]:
+    if message.content.startswith('cre') and message.author.id in owner:
         await message.add_reaction("👍")
         import os
         import sys
@@ -711,5 +725,5 @@ async def on_raw_reaction_add(payload):
             except ValueError:
                 pass
 
-client.run('',
+client.run(token,
            log_handler=handler)
