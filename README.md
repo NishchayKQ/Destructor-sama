@@ -1,4 +1,4 @@
-# setup
+# setup // warning Under Maintenance
 ## To host it yourself, follow these steps :
 1. add IDs of owners on line no 30 of bot.py in a List [ID1,ID2...]  
     &nbsp;Example:  
