@@ -1,6 +1,6 @@
 # setup // warning Under Maintenance
 ## To host it yourself, follow these steps :
-1. add IDs of owners on line no 30 of bot.py in a List [ID1,ID2...]  
+1. add IDs of owners on line no 7 of setup.py in a List [ID1,ID2...]  
     &nbsp;Example:  
         &nbsp;&nbsp;&nbsp;&nbsp;Multiple Owners  
    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`owner = [534258961044444444, 867496941999999999]`  
@@ -12,11 +12,11 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to change skullBoard...  
   
 3. add IDs of server you want the slash commands to work on in a list  [ID1,ID2...]  
-    &nbsp;&nbsp;&nbsp;&nbsp;(line no. 31)  
+    &nbsp;&nbsp;&nbsp;&nbsp;(line no. 10)  
   
-4. (optional , line no 32) mention ID of a channel you want the bot to send messages like  
+4. (optional , line no 13) mention ID of a channel you want the bot to send messages like  
    &nbsp;&nbsp;&nbsp;&nbsp;*bot is now online*
-5. Finally on line no 33 , add your token...[here](https://discordpy.readthedocs.io/en/stable/discord.html) is more info on how to get your token 
+5. Finally on line no 16 , add your token...[here](https://discordpy.readthedocs.io/en/stable/discord.html) is more info on how to get your token 
 
 
 # My discord bot with features:
