@@ -159,17 +159,19 @@ async def myLevel(interaction: discord.Interaction, user: discord.User = None):
             await interaction.followup.send(file=file)
 
 
-async def on_message_increase_xp(message: discord.Message):
+async def on_message_increase_xp(message: discord.Message, author: discord.User = None):
     # as xp is globalMulti*xp & xp is one so 1 is not needed
     particularServerData = LevelData[str(message.guild.id)]
     globalMulti = particularServerData["global"]
+    if not author:
+        author = message.author
     curriPerson = particularServerData["members"].get(
-        str(message.author.id), "new")
+        str(author.id), "new")
     if curriPerson == "new":
         curriPerson = [globalMulti, time.time(), getLevel(globalMulti)[
             0], time.time()]
         particularServerData["members"].update(
-            {str(message.author.id): curriPerson})
+            {str(author.id): curriPerson})
         LevelData.update({str(message.guild.id): particularServerData})
         updater(mode=None, update_level=LevelData)
 
@@ -180,13 +182,13 @@ async def on_message_increase_xp(message: discord.Message):
         if curriPerson[2] != levelForCurrentXp:
             channelToSend = client.get_channel(
                 particularServerData["channel"])
-            file = await rankCardMaker(author=message.author, xp=curriPerson[0], level=temp,
+            file = await rankCardMaker(author=author, xp=curriPerson[0], level=temp,
                                        secs=time.time() - curriPerson[3], mode="up")
-            await channelToSend.send(content=f"<@{message.author.id}>", file=file)
+            await channelToSend.send(content=f"<@{author.id}>", file=file)
             curriPerson[2] = levelForCurrentXp
             curriPerson[3] = time.time()
 
-        particularServerData["members"].update({str(message.author.id): [
+        particularServerData["members"].update({str(author.id): [
             curriPerson[0], time.time(), levelForCurrentXp, curriPerson[3]]})
         LevelData.update({str(message.guild.id): particularServerData})
         updater(mode=None, update_level=LevelData)

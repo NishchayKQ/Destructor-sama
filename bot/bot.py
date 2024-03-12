@@ -130,7 +130,10 @@ async def bookmark(interaction: discord.Interaction, message: discord.Message):
 
 
 @client.event
-async def on_message(message):
+async def on_message(message: discord.Message):
+    if message.interaction:
+        await on_message_increase_xp(message, message.interaction.user)
+
     if message.author == client.user:
         return
 
