@@ -1,10 +1,4 @@
-bot/*.py
-bot/graphMods/*.py
-bot/graphMods/*.html
-bot/graphMods/*.jpg
-bot/graphMods/*.txt
-bot/graphMods/*.json
-bot/graphMods/jS
+graphMods/discord.log
 # venv
 Scripts/
 Include/
