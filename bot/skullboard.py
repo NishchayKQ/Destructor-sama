@@ -51,6 +51,10 @@ async def skullSet(interaction: discord.Interaction, channel: discord.TextChanne
 
         if not channel and not emojis and not number_of_reactions:
             particularServerData[0] = None
+        else:
+            channelToSend = client.get_channel(particularServerData[0])
+            stringOfEmojis = " , ".join(particularServerData[3])
+            await channelToSend.edit(topic=f"Get {particularServerData[4]}x {stringOfEmojis} to get featured here")
 
         ServerData.update({str(interaction.guild_id): particularServerData})
         with open("graphMods/dcData.json", mode="w") as araFile:
