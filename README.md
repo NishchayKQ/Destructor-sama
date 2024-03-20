@@ -1,4 +1,4 @@
-# setup // warning Under Maintenance
+# setup
 ## To host it yourself, follow these steps :
 1. add IDs of owners on line no 7 of setup.py in a List [ID1,ID2...]  
     &nbsp;Example:  
@@ -21,11 +21,15 @@
 
 # My discord bot with features:
 ## Multiple emoji starboard
+<img src="https://github.com/NishchayKQ/Destructor-sama/assets/108711354/f58cecbe-789d-46fa-baab-417e983c6106" width=100% height=100%>
+<img src="https://github.com/NishchayKQ/Destructor-sama/assets/108711354/46bf0411-ecbe-415b-98e1-f8c78af12a9f" width=100% height=100%>
+
 the bot will post a message in x channel when y amount of reactions are detected
 on a message. Note x and y can be customized as well
 
 ## Leveling feature
 creates a rank card generated with my handwriting by image manipulation
+<img src="https://github.com/NishchayKQ/Destructor-sama/assets/108711354/4fe3b0ce-a438-4457-abc5-483476e4500e" width=100% height=100%>
 
 ## bookmark a message on a server
 context menu for a message gives option to send that message to your dm
