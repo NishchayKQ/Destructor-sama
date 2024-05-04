@@ -1,5 +1,7 @@
 import json
 import logging
+import sqlite3
+from enum import Enum
 
 import discord
 
@@ -19,12 +21,38 @@ token: str = ""
 
 handler = logging.FileHandler(filename='graphMods/discord.log', encoding='utf-8', mode='w')
 
-with open("graphMods/dcData.json") as araFile:
-    ServerData = json.load(araFile)
+con = sqlite3.connect("graphMods/servers.db")
+cur = con.cursor()
+
 with open("graphMods/starloglol.json") as nyaFile:
     StarData = json.load(nyaFile)
 with open("graphMods/level.json") as frenchFile:
     LevelData = json.load(frenchFile)
+
+
+class Config(Enum):
+    skull: callable = "skull_ch"
+    delas: callable = "delas_ch"
+    level: callable = "level_ch"
+    multi: callable = "level_multi"
+    rxn: callable = "no_of_rxn"
+    emojis: callable = "emojis"
+
+    def __call__(self, server_id: int) -> int | list | None:
+        res = con.execute(f"select {self.value} from config where id = {server_id}").fetchone()[0]
+        if res is not None:
+            if self is Config.emojis:
+                return eval(res)
+            else:
+                return res
+
+    def __setitem__(self, key, value):
+        if value is list:
+            con.execute(f"update config set {self.value} = {repr(value)} where id = {key}")
+        else:
+            con.execute(f"update config set {self.value} = ? where id = {key}", (value,))
+        con.commit()
+
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -36,11 +64,8 @@ for server in listOfServers:
 
 
 def updater(mode: int = 1, update_level: dict = None):
-    global ServerData, StarData, LevelData
-    if mode == 1:  # default mode which is to update ServerData
-        with open("graphMods/dcData.json") as erisFile:
-            ServerData = json.load(erisFile)
-    elif update_level:
+    global StarData, LevelData
+    if update_level:
         with open("graphMods/level.json", mode="w") as ireFile:
             json.dump(update_level, ireFile, indent=4)
         # with open("graphMods/level.json") as araFile:
@@ -48,8 +73,6 @@ def updater(mode: int = 1, update_level: dict = None):
         LevelData = update_level
         # print(f" from upDater {levelData}")
     else:  # update all usually I use mode 2 for this
-        with open("graphMods/dcData.json") as erisFile:
-            ServerData = json.load(erisFile)
         with open("graphMods/starloglol.json") as mewFile:
             StarData = json.load(mewFile)
         with open("graphMods/level.json") as ireFile:
