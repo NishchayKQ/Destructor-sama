@@ -1,14 +1,15 @@
 import time
 from io import BytesIO
 
-import discord.interactions
 from PIL import Image
-
+from functools import cache
 from data import alphaDict
 from setup import *
-from utility import getLevel, convert_sec_to_day
+from utility import getLevel, convert_sec_to_day, performance
 
 
+@performance
+@cache
 def alphToImgConvertor(word, size: tuple[int, int] = (100, 56)) -> Image:
     word = str(word)
     alphabetOriginal = Image.open("graphMods/latest.jpg")
@@ -51,6 +52,7 @@ def alphToImgConvertor(word, size: tuple[int, int] = (100, 56)) -> Image:
         return toSend
 
 
+@cache
 # returns discord image file
 async def rankCardMaker(
         author: discord.User,
@@ -90,21 +92,29 @@ async def rankCardMaker(
 
 
 @tree.command(name="setup_leveling",
-              description="simple leveling feature! |passing no arguments will disable this feature",
+              description="simple leveling feature! | empty pass to disable it entirely",
               guilds=convertedGuilds)
 @discord.app_commands.checks.has_permissions(administrator=True)
-@discord.app_commands.describe(which_channel="channel where level updates get annouced!")
-async def LevSet(interaction: discord.Interaction, which_channel: discord.TextChannel):
-    particularServerData = {
-        "channel": which_channel.id, "global": 1, "members": {}}
-    LevelData.update({str(interaction.guild_id): particularServerData})
-    ServerData[str(interaction.guild_id)][5] = True
+@discord.app_commands.describe(
+    which_channel="channel where level updates get announced! | empty pass will disable announcement",
+    multi="the global multiplier per message")
+async def LevSet(interaction: discord.Interaction, which_channel: discord.TextChannel = None, multi: int = None):
+    # particularServerData = {
+    #     "channel": which_channel.id, "global": 1, "members": {}}
 
-    with open("graphMods/dcData.json", mode="w") as cafFile:
-        json.dump(ServerData, cafFile, indent=4)
-    with open("graphMods/level.json", mode="w") as araFile:
-        json.dump(LevelData, araFile, indent=4)
-    updater(mode=3)
+    # LevelData.update({str(interaction.guild_id): particularServerData})
+    try:
+        with con:
+            con.execute(f"insert into config values({interaction.guild_id},null, null,null,1,null,null)")
+    except sqlite3.IntegrityError:
+        pass
+    Config.level[interaction.guild_id] = which_channel.id if which_channel is not None else None
+    Config.multi[interaction.guild_id] = multi
+    # con.execute(f"create table s{interaction.guild_id}")
+
+    # with open("graphMods/level.json", mode="w") as araFile:
+    #     json.dump(LevelData, araFile, indent=4)
+    # updater(mode=3)
     await interaction.response.send_message(content="okie dokie")
 
 
@@ -116,7 +126,7 @@ async def myLevel(interaction: discord.Interaction, user: discord.User = None):
     if user:
         author = user
 
-    if not ServerData[str(interaction.guild_id)][5]:
+    if not Config.multi(interaction.guild_id):
         await interaction.response.send_message(
             content="leveling up isnt enabled on this server, try asking an Admin to run /setup_leveling ! #Nish make "
                     "this clickable")
@@ -162,11 +172,10 @@ async def myLevel(interaction: discord.Interaction, user: discord.User = None):
 async def on_message_increase_xp(message: discord.Message, author: discord.User = None):
     # as xp is globalMulti*xp & xp is one so 1 is not needed
     particularServerData = LevelData[str(message.guild.id)]
-    globalMulti = particularServerData["global"]
+    globalMulti = Config.multi(message.guild.id)
     if not author:
         author = message.author
-    curriPerson = particularServerData["members"].get(
-        str(author.id), "new")
+    curriPerson = particularServerData["members"].get(str(author.id), "new")
     if curriPerson == "new":
         curriPerson = [globalMulti, time.time(), getLevel(globalMulti)[
             0], time.time()]

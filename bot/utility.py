@@ -1,7 +1,8 @@
 from math import sqrt, floor, ceil
 from time import time
 from typing import Callable, Union
-
+from functools import cache
+import sqlite3
 from data import levels
 
 
@@ -36,6 +37,7 @@ def convert_sec_to_day(n: int) -> str:
     return formatted_str
 
 
+@cache
 @performance
 def getLevel(xp: int) -> tuple[int, int]:
     if xp <= 34:  # for level 0 no formula
@@ -43,11 +45,10 @@ def getLevel(xp: int) -> tuple[int, int]:
     else:
         calcu = 1 + (sqrt(5 * (xp - 35))) / 10
         x = ceil(calcu)
-        try:
+        if x <= 20:
             y = levels[x]
-        except KeyError:
+        else:
             y = (20 * (x * x)) - (40 * x) + 55
-            levels[x] = y
 
         return floor(calcu), y
 

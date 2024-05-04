@@ -12,6 +12,7 @@ key will be server id, {serverid:[list of message ids]
 
 import time
 
+# for tree sync
 # noinspection PyUnresolvedReferences
 import delasDelete
 # noinspection PyUnresolvedReferences
@@ -62,24 +63,25 @@ async def on_resumed():
 
 @client.event
 async def on_guild_join(guild):
-    with open("graphMods/dcData.json", mode="w") as ranaTigrina:
-        ServerData.update({str(guild.id): [None, None, None, ["💀"], 3, None]})
-        json.dump(ServerData, ranaTigrina, indent=4)
+    con.execute(f"insert into config values({guild.id}, null, null, null, null , null, null)")
+    con.commit()
+
     with open("graphMods/starloglol.json", mode="w") as OceanMan:
         StarData.update({str(guild.id): []})
         json.dump(StarData, OceanMan, indent=4)
     updater(mode=2)
 
 
-@client.event
-async def on_guild_remove(guild):
-    with open("graphMods/dcData.json", mode="w") as ranaTigrina:
-        ServerData.pop(str(guild.id))
-        json.dump(ServerData, ranaTigrina, indent=4)
-    with open("graphMods/starloglol.json", mode="w") as OceanMan:
-        StarData.pop(str(guild.id))
-        json.dump(StarData, OceanMan, indent=4)
-    updater(mode=2)
+# do we really need to remove?
+# @client.event
+# async def on_guild_remove(guild):
+#     with open("graphMods/dcData.json", mode="w") as ranaTigrina:
+#         _ServerData.pop(str(guild.id))
+#         json.dump(_ServerData, ranaTigrina, indent=4)
+#     with open("graphMods/starloglol.json", mode="w") as OceanMan:
+#         StarData.pop(str(guild.id))
+#         json.dump(StarData, OceanMan, indent=4)
+#     updater(mode=2)
 
 
 class Buttons(discord.ui.View):
@@ -150,7 +152,7 @@ async def on_message(message: discord.Message):
         import sys
         os.execv(sys.executable, ['python'] + sys.argv)
 
-    if message.guild and ServerData[str(message.guild.id)][5] and not message.author.bot:
+    if message.guild and Config.multi(message.guild.id) is not None and not message.author.bot:
         await on_message_increase_xp(message)
 
 

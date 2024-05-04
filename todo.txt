@@ -5,3 +5,14 @@ change only kepkep can make me say stuff
 kepkep message eh #506
 
 tell about sleep and cre
+
+maybe remove seconds and cache rank card func...anyways make the seconds to days func better
+
+Does the CodeForces API support a way to get the number of solved problems?
+	https://codeforces.com/blog/entry/107345
+
+leetcode:
+	https://leetcode.com/discuss/general-discussion/1297705/is-there-public-api-endpoints-available-for-leetcode
+
+make alternative query based handler cuz why not
+set a limit to multi to save from 10**100 multi

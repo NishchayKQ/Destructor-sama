@@ -6,15 +6,7 @@ from setup import *
               guilds=convertedGuilds)
 @discord.app_commands.checks.has_permissions(administrator=True)
 async def delSet(interaction: discord.Interaction, which_channel: discord.TextChannel = None):
-    particularServerData = ServerData[str(interaction.guild_id)]
-    if which_channel:
-        particularServerData[1] = which_channel.id
-    else:
-        particularServerData[1] = None
-    ServerData.update({str(interaction.guild_id): particularServerData})
-    with open("graphMods/dcData.json", mode="w") as araFile:
-        json.dump(ServerData, araFile, indent=4)
-    updater()
+    Config.delas[interaction.guild_id] = which_channel.id if which_channel else None
     await interaction.response.send_message(content="okie dokie")
 
 
@@ -30,7 +22,7 @@ async def delSet_error(interaction, error):
 async def on_raw_message_delete(message):
     channelToSendID = None
     if message.guild_id:  # haha if message is ephemeral or dm message delete then ignore
-        channelToSendID = ServerData[str(message.guild_id)][1]
+        channelToSendID = Config.delas(message.guild_id)
     if channelToSendID:
         try:
             if message.channel_id == channelToSendID:
@@ -50,14 +42,9 @@ async def on_raw_message_delete(message):
 
             channelToSend = client.get_channel(channelToSendID)
             if not channelToSend:
-                particularServerData = ServerData[str(message.guild_id)]
-                particularServerData[1] = None
-                ServerData.update(
-                    {str(message.guild_id): particularServerData})
-                with open("graphMods/dcData.json", mode="w") as araFile:
-                    json.dump(ServerData, araFile, indent=4)
-                updater()
-                raise AttributeError("channel deleted")
-            await channelToSend.send(embed=kawaiestEmbed)
+                Config.delas[message.guild_id] = None
+                print("channel deleted")
+            else:
+                await channelToSend.send(embed=kawaiestEmbed)
         except AttributeError:
             pass

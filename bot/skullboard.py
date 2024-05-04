@@ -5,16 +5,15 @@ from setup import *
               description="manage or add skullboard | passing no arguments will disable this feature",
               guilds=convertedGuilds)
 @discord.app_commands.checks.has_permissions(administrator=True)
-@discord.app_commands.describe(emojis="can enter multiple, only recognises gold variant for coloured emojis like 👍👍🏽")
-@discord.app_commands.describe(channel="channel where destructor will post in")
 @discord.app_commands.describe(
+    emojis="can enter multiple, only recognises gold variant for coloured emojis like 👍👍🏽",
+    channel="channel where destructor will post in",
     number_of_reactions="no. of reactions for a message to get posted in skullboard...default is 3")
 async def skullSet(interaction: discord.Interaction, channel: discord.TextChannel = None, emojis: str = None,
                    number_of_reactions: int = None):
     try:
-        particularServerData = ServerData[str(interaction.guild_id)]
         if channel:
-            particularServerData[0] = channel.id
+            Config.level[interaction.guild_id] = channel.id
         await interaction.response.send_message(content="okie dokie")
         if emojis:
             cont = False
@@ -41,25 +40,21 @@ async def skullSet(interaction: discord.Interaction, channel: discord.TextChanne
             print("------------------------")
             print(listOfEmojis)
             print("------------------------")
-            particularServerData[3] = listOfEmojis
+            Config.emojis[interaction.guild_id] = listOfEmojis
             message = await interaction.original_response()
             for ara in listOfEmojis:
                 await message.add_reaction(ara)
 
         if number_of_reactions:
-            particularServerData[4] = number_of_reactions
+            Config.rxn[interaction.guild_id] = number_of_reactions
 
         if not channel and not emojis and not number_of_reactions:
-            particularServerData[0] = None
+            Config.skull[interaction.guild_id] = None
         else:
-            channelToSend = client.get_channel(particularServerData[0])
-            stringOfEmojis = " , ".join(particularServerData[3])
-            await channelToSend.edit(topic=f"Get {particularServerData[4]}x {stringOfEmojis} to get featured here")
-
-        ServerData.update({str(interaction.guild_id): particularServerData})
-        with open("graphMods/dcData.json", mode="w") as araFile:
-            json.dump(ServerData, araFile, indent=4)
-        updater()
+            channelToSend = client.get_channel(Config.skull(interaction.guild_id))
+            stringOfEmojis = " , ".join(Config.emojis(interaction.guild_id))
+            await channelToSend.edit(
+                topic=f"Get {Config.rxn(interaction.guild_id)}x {stringOfEmojis} to get featured here")
     except discord.errors.HTTPException:
         await interaction.channel.send(content="emoji not found")
 
@@ -74,10 +69,9 @@ async def skullSet_error(interaction, error):
 
 @client.event
 async def on_raw_reaction_add(payload):
-    curriServer = ServerData[str(payload.guild_id)]
     currentEmoji = str(payload.emoji)
-    if currentEmoji in curriServer[3]:
-        channelToSendID = curriServer[0]
+    if currentEmoji in Config.emojis(payload.guild_id):
+        channelToSendID = Config.skull(payload.guild_id)
         run = True
 
         if not channelToSendID:
@@ -100,11 +94,7 @@ async def on_raw_reaction_add(payload):
                 channelToSend = client.get_channel(channelToSendID)
 
                 if not channelToSend:  # if channel got deleted
-                    curriServer[0] = None
-                    ServerData.update({str(payload.guild_id): curriServer})
-                    with open("graphMods/dcData.json", mode="w") as araFile:
-                        json.dump(ServerData, araFile, indent=4)
-                    updater()
+                    Config.skull[payload.guild_id] = None
                     raise ValueError("channel deleted")
 
                 channelThatgotReaction = client.get_channel(payload.channel_id)
@@ -113,7 +103,7 @@ async def on_raw_reaction_add(payload):
                 for ara in messageThatGotReaction.reactions:
                     if str(ara.emoji) != currentEmoji:
                         continue  # if not skull then skip
-                    if ara.count >= curriServer[4]:
+                    if ara.count >= Config.rxn(payload.guild_id):
                         if messageThatGotReaction.attachments:
                             kawaiEmbed = discord.Embed(
                                 type="image", description=messageThatGotReaction.content,
