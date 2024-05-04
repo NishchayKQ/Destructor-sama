@@ -16,3 +16,5 @@ leetcode:
 
 make alternative query based handler cuz why not
 set a limit to multi to save from 10**100 multi
+
+oops! remove debugging @performace from here
