@@ -133,8 +133,10 @@ async def bookmark(interaction: discord.Interaction, message: discord.Message):
 
 @client.event
 async def on_message(message: discord.Message):
-    if message.interaction:
-        await on_message_increase_xp(message, message.interaction.user)
+    # this is to catch interaction with bots and give xp to user for it,
+    # we put this above bot check so that interaction with Destructor-sama also counts
+    if message.interaction_metadata:
+        await on_message_increase_xp(message, message.interaction_metadata.user)
 
     if message.author == client.user:
         return
